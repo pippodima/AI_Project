@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 import re
 from StopWords import get_stopword
 from nltk.tokenize import word_tokenize
-# nltk.download('punkt')
 
 root_dir = '/Users/pippodima/Desktop/Uni/intelligenza artificiale/Progetto'
 mime_pattern = re.compile(r'^.*?(<!doctype|<html|<head|<title)', re.DOTALL | re.IGNORECASE)
