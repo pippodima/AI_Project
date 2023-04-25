@@ -23,7 +23,7 @@ class Dataset:
             self._build_vocab(root_dir)
             self._count_words(root_dir)
             self.word_counts = np.reshape(self.word_counts, (self.n_documents, self.vocab_size))
-            self.labels = np.reshape(self.labels, (self.n_documents, 1))
+            # self.labels = np.reshape(self.labels, (self.n_documents, 1))
             os.makedirs(self.output_directory, exist_ok=True)
             np.save(self.output_directory + '/word_counts', self.word_counts)
             np.save(self.output_directory + '/labels', self.labels)
