@@ -20,5 +20,6 @@ def main():
 
 
     print(accuracy_score(Y_test, Y_pred))
+
 if __name__ == "__main__":
     main()
