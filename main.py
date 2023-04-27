@@ -14,12 +14,16 @@ def main():
     X_test, Y_test = test_dataset.get_X_Y()
 
     bernoulliNaiveBayes = Bernoulli()
-
     bernoulliNaiveBayes.train(X_train, Y_train)
-    Y_pred = bernoulliNaiveBayes.test(X_test)
+    Y_pred_Bernoulli = bernoulliNaiveBayes.test(X_test)
+    print(accuracy_score(Y_test, Y_pred_Bernoulli))
+
+    multinomialNaiveBayes = Multinomial()
+    multinomialNaiveBayes.train(X_train, Y_train)
+    Y_pred_Multinomial = multinomialNaiveBayes.test(X_test)
+    print(accuracy_score(Y_test, Y_pred_Multinomial))
 
 
-    print(accuracy_score(Y_test, Y_pred))
 
 if __name__ == "__main__":
     main()

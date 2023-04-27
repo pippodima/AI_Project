@@ -1,4 +1,5 @@
 import numpy as np
+
 class Bernoulli:
     def __init__(self):
         self.prior = None
@@ -18,25 +19,8 @@ class Bernoulli:
         for i, c in enumerate(self.classes):
             X_c = X_ones[y == c]
             self.prior[i] = np.log(X_c.shape[0] / n_documents)
-            self.likelihood[i] = np.log((X_c.sum(axis=0) + 1) / (X_c.shape[0] + 2))
-            self.not_likelihood[i] = np.log(1 + ((X_c.sum(axis=0) + 1) / (X_c.shape[0] + 2)))
-
-        # normalize log prob
-        # log_sum = np.sum(self.likelihood, axis=1)
-        log_max = np.max(self.likelihood, axis=1)
-
-        # probs = np.exp(self.likelihood - log_max[:, np.newaxis])
-        # probs /= np.sum(probs, axis=1)[:, np.newaxis]
-
-        self.likelihood = np.exp(self.likelihood - log_max[:, np.newaxis])
-        self.likelihood /= np.sum(self.likelihood, axis=1)[:, np.newaxis]
-        # self.likelihood = np.log(self.likelihood)
-        log_max = np.max(self.not_likelihood, axis=1)
-        self.not_likelihood = np.exp(self.not_likelihood - log_max[:, np.newaxis])
-        self.not_likelihood /= np.sum(self.not_likelihood, axis=1)[:, np.newaxis]
-        # self.not_likelihood = np.log(self.not_likelihood)
-
-        # assert np.allclose(np.sum(probs, axis=1), 1.0)
+            self.likelihood[i] = np.log((np.sum(X_c, axis=0) + 1) / (X_c.shape[0] + 2))
+            self.not_likelihood[i] = np.log(1 + (np.sum(X_c + 1, axis=0) / (X_c.shape[0] + 2)))
 
 
 
@@ -45,12 +29,67 @@ class Bernoulli:
         n_documents, vocab_size = np.shape(X)
         temp = np.ones((n_documents, len(self.classes)))
 
+        for i, c in enumerate(self.classes):
+            temp[:, i] = np.sum((X_ones * self.likelihood[i]) + ((1-X_ones) * self.not_likelihood[i]), axis=1)
+            temp[:, i] += self.prior[i]
+        # den = np.sum(temp, axis=1)
+        # den = den[:, np.newaxis]      # normalizzazione non serve perche il max rimane max
+        # temp = temp/den
+        return self.classes[np.argmax(temp, axis=1)]
+
+
+class Multinomial:
+    def __init__(self):
+        self.prior = None
+        self.likelihood = None
+        self.not_likelihood = None
+        self.classes = None
+
+    def train(self, X, y):
+        n_documents, vocab_size = np.shape(X)
+        self.classes = np.unique(y)
+        n_classes = len(self.classes)
+        self.likelihood = np.zeros((n_classes, vocab_size))
+        self.prior = np.zeros(n_classes)
+        den_likelihood = np.sum(X)
 
         for i, c in enumerate(self.classes):
-            temp[:, i] = np.prod((X_ones * self.likelihood[i]) + ((1-X_ones) * self.not_likelihood[i]), axis=1)
-            temp[:, i] *= self.prior[i]
-        den = np.sum(temp, axis=1)
-        den = den[:, np.newaxis]
-        temp = temp/den
+            X_c = X[y == c]
+            self.likelihood[i] = np.log((np.sum(X_c, axis=0) + 1) / (den_likelihood + vocab_size))
+            self.prior[i] = np.log(X_c.shape[0] / n_documents)
+
+
+    def test(self, X):
+        n_documents, vocab_size = np.shape(X)
+        n_word_doc = np.sum(X, axis=1)
+
+        len_doc, n_occ_doc = np.unique(n_word_doc, return_counts=True)
+        logprob_len_d = np.log(n_occ_doc / n_documents)
+        logfac_d = [sum([np.log(i) for i in range(1, j+1)]) for j in len_doc]
+        logfac_X = np.zeros_like(X, dtype=np.float64)
+
+        for i in range(n_documents):
+            for j in range(vocab_size):
+                for k in range(X[i, j]):
+                    logfac_X[i, j] += np.log(k + 1)
+
+        logprob_len_d += logfac_d
+        probs = {}
+        for i in range(len(len_doc)):
+            probs[len_doc[i]] = logprob_len_d[i]
+
+        temp = np.ones((n_documents, len(self.classes)))
+
+        for i, c in enumerate(self.classes):
+            temp[:, i] = np.sum(((X * self.likelihood[i]) - logfac_X), axis=1)
+
+        for i in range(n_documents):
+            for j in range(len(self.classes)):
+                temp[i, j] += probs[n_word_doc[i]]
+
+        temp += self.prior
+
         return self.classes[np.argmax(temp, axis=1)]
+
+
 
