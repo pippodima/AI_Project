@@ -62,9 +62,8 @@ class Multinomial:
     def test(self, X):
         n_documents, vocab_size = np.shape(X)
         n_word_doc = np.sum(X, axis=1)
-
         len_doc, n_occ_doc = np.unique(n_word_doc, return_counts=True)
-        logprob_len_d = np.log(n_occ_doc / n_documents)
+        log_prob_len_d = np.log(n_occ_doc / n_documents)
         logfac_d = [sum([np.log(i) for i in range(1, j+1)]) for j in len_doc]
         logfac_X = np.zeros_like(X, dtype=np.float64)
 
@@ -73,10 +72,10 @@ class Multinomial:
                 for k in range(X[i, j]):
                     logfac_X[i, j] += np.log(k + 1)
 
-        logprob_len_d += logfac_d
+        log_prob_len_d += logfac_d
         probs = {}
         for i in range(len(len_doc)):
-            probs[len_doc[i]] = logprob_len_d[i]
+            probs[len_doc[i]] = log_prob_len_d[i]
 
         temp = np.ones((n_documents, len(self.classes)))
 
