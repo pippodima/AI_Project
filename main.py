@@ -14,9 +14,10 @@ def main():
     X_train, Y_train = train_dataset.get_X_Y()
     X_test, Y_test = test_dataset.get_X_Y()
 
-    sizes = [0.001, 0.01, 0.1, 0.2, 0.4, 0.6, 0.8, 1]
+    sizes = [0.0001, 0.001, 0.01, 0.1, 0.2, 0.4, 0.6, 0.8, 1]
 
     for size in sizes:
+
         X_train_new = get_different_vocabulary(X_train, Y_train, size)
         X_test_new = get_different_vocabulary(X_test, Y_test, size)
         bernoulliNaiveBayes = Bernoulli()
@@ -34,12 +35,14 @@ def main():
 def get_different_vocabulary(X, y, size):
     X_ones = np.where(X > 0, 1, 0)
     n_documents, vocab_size = np.shape(X)
+    k = 1  # evito i NaN laplace smoothing
+
     p_f = (np.sum(X_ones, axis=0)) / n_documents
     for i, c in enumerate(np.unique(y)):
         X_c = X[y == c]
         p_c = X_c.shape[0]/n_documents
         p_c_f = (np.sum(X_c, axis=0)) / n_documents
-    k = 0.5
+
     p_c += k
     p_f += k
     p_c_f += k
