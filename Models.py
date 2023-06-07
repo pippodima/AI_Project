@@ -32,9 +32,6 @@ class Bernoulli:
         for i, c in enumerate(self.classes):
             temp[:, i] = np.sum((X_ones * self.likelihood[i]) + ((1-X_ones) * self.not_likelihood[i]), axis=1)
             temp[:, i] += self.prior[i]
-        # den = np.sum(temp, axis=1)
-        # den = den[:, np.newaxis]      # normalizzazione non serve perche il max rimane max
-        # temp = temp/den
         return self.classes[np.argmax(temp, axis=1)]
 
 
@@ -63,32 +60,32 @@ class Multinomial:
         n_documents, vocab_size = np.shape(X)
         n_word_doc = np.sum(X, axis=1)
         len_doc, n_occ_doc = np.unique(n_word_doc, return_counts=True)
-        log_prob_len_d = np.log(n_occ_doc / n_documents)
+        log_prob_len_doc = np.log(n_occ_doc / n_documents)
         logfac_d = [sum([np.log(i) for i in range(1, j+1)]) for j in len_doc]
         logfac_X = np.zeros_like(X, dtype=np.float64)
 
-        for i in range(n_documents):
-            for j in range(vocab_size):
-                for k in range(X[i, j]):
-                    logfac_X[i, j] += np.log(k + 1)
+        for d in range(n_documents):
+            for w in range(vocab_size):
+                for n in range(X[d, w]):
+                    logfac_X[d, w] += np.log(n + 1)
 
-        log_prob_len_d += logfac_d
+        log_prob_len_doc += logfac_d
         probs = {}
         for i in range(len(len_doc)):
-            probs[len_doc[i]] = log_prob_len_d[i]
+            probs[len_doc[i]] = log_prob_len_doc[i]
 
-        temp = np.ones((n_documents, len(self.classes)))
+        final_probs = np.ones((n_documents, len(self.classes)))
 
         for i, c in enumerate(self.classes):
-            temp[:, i] = np.sum(((X * self.likelihood[i]) - logfac_X), axis=1)
+            final_probs[:, i] = np.sum(((X * self.likelihood[i]) - logfac_X), axis=1)
 
-        for i in range(n_documents):
-            for j in range(len(self.classes)):
-                temp[i, j] += probs[n_word_doc[i]]
+        for d in range(n_documents):
+            for c in range(len(self.classes)):
+                final_probs[d, c] += probs[n_word_doc[d]]
 
-        temp += self.prior
+        final_probs += self.prior
 
-        return self.classes[np.argmax(temp, axis=1)]
+        return self.classes[np.argmax(final_probs, axis=1)]
 
 
 

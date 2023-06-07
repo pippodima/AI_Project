@@ -30,8 +30,6 @@ for category in categories:
                 raw = re.sub('\s+', ' ', raw).strip()  # double spaces
                 word_tokens = word_tokenize(raw)
                 words = [word.lower() for word in word_tokens if word.lower() not in mystopwords and len(word.lower()) > 2]
-
-
                 output_directory = f'{root_dir}/new_tokenized_webkb/{category}/{uni}'
                 os.makedirs(output_directory, exist_ok=True)
                 output_file_name = f'{output_directory}/{element}.txt'
