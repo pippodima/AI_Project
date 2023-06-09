@@ -1,8 +1,8 @@
-import os
-from bs4 import BeautifulSoup
-import re
-from StopWords import get_stopword
 from nltk.tokenize import word_tokenize
+from StopWords import get_stopword
+from bs4 import BeautifulSoup
+import os
+import re
 
 root_dir = '/Users/pippodima/Desktop/Uni/intelligenza artificiale/Progetto'
 mime_pattern = re.compile(r'^.*?(<!doctype|<html|<head|<title)', re.DOTALL | re.IGNORECASE)

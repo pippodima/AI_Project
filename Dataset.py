@@ -6,6 +6,7 @@ universities = ['cornell', 'misc', 'texas', 'washington', 'wisconsin']
 train_universities = ['cornell', 'misc', 'texas', 'washington']
 test_universities = ['wisconsin']
 
+
 class Dataset:
     def __init__(self, root_dir, test, load):
         self.word_to_index = {}
@@ -18,7 +19,6 @@ class Dataset:
         self.output_directory = 'test' if test else 'train'
         self.universities = test_universities if test else train_universities
 
-
         if not load:
             self._build_vocab(root_dir)
             self._count_words(root_dir)
@@ -30,8 +30,6 @@ class Dataset:
         else:
             self.word_counts = np.load(self.output_directory + '/word_counts.npy')
             self.labels = np.load(self.output_directory + '/labels.npy')
-
-
 
     def get_X(self):
         return self.word_counts
