@@ -9,7 +9,8 @@ load = True
 def main():
     train_dataset = Dataset(root_dir, test=False, load=load)
     test_dataset = Dataset(root_dir, test=True, load=load)
-    # exit()
+    if not load:
+        exit()
     X_train, Y_train = train_dataset.get_X_Y()
     X_test, Y_test = test_dataset.get_X_Y()
 
